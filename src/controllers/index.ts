@@ -26,5 +26,15 @@ async function routes(app: any, opts: any, next: any) {
         res.status(200).send({ status: 'ok', result: result[0] });
     })
 
+    app.get('/cNumber/:no', async (req: any, res: any) => {
+        let no = req.params.no;
+        let result = await phones.getCheckNumber(app.knex, no);
+        res.status(200).send({ status: 'ok', result: result[0] });
+    })
+
+    app.get('/build', async (req: any, res: any) => {
+        let result = await phones.getBuild(app.knex);
+        res.status(200).send({ status: 'ok', result: result[0] });
+    })
 }
 module.exports = routes;

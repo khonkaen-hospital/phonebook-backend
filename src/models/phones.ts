@@ -67,4 +67,14 @@ export class PhonesModel {
 
     }
 
+    async getCheckNumber(db: Knex, no: number) {
+        let sql = `select no from phone_internal where no = '${no}'`;
+        return await db.raw(sql);
+    }
+
+    async getBuild(db: Knex) {
+        let sql = `select build from phone_internal group by build order by build desc;`;
+        return await db.raw(sql);
+    }
+
 }
