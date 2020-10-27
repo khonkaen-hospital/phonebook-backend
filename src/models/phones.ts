@@ -77,4 +77,40 @@ export class PhonesModel {
         return await db.raw(sql);
     }
 
+    async getFloor(db: Knex) {
+        let sql = `select floor from phone_internal group by floor order by floor asc;`;
+        return await db.raw(sql);
+    }
+
+    async updatePhone(db: Knex, data: any) {
+        let sql = `update phone_internal set 
+        department = '${data.department}', room = '${data.room}',
+        area = '${data.area}', floor = '${data.floor}',
+        build = '${data.build}', phone_type = '${data.phone_type}',
+        softphone = '${data.softphone}', isactive = '${data.isactive}',
+        responder = '${data.responder}'
+        where no = '${data.no}' limit 1`;
+        return await db.raw(sql);
+    }
+
+    async getPhone(db: Knex, code: number) {
+        let sql = `SELECT no, department, area, floor, build, qr_3cx FROM phone_internal where responder = '${code}';`;
+        return await db.raw(sql);
+    }
+
+    async getResponder(db: Knex, data: any) {
+        let sql = `select * from phone_internal where responder = '${data.responder}' `;
+        return await db.raw(sql);
+    }
+
+    async getSoftphones(db: Knex, data: any) {
+        let search = data.search;
+        let where = '';
+        if (data != '') {
+            where = `and (no like '%${search}%' or area like '%${search}%' or room like '%${search}%')`;
+        }
+        let sql = `select no, area, room, responder, softphone, qr_3cx, isactive 
+        from phone_internal where softphone = '1' ${where} order by isactive desc, no asc;`;
+        return await db.raw(sql);
+    }
 }
