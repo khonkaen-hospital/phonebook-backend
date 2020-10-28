@@ -19,6 +19,14 @@ services:
       - ./.env:/app/.env
     networks:
       - brokernet
+  ihosapi:
+    image: registry.gitlab.com/khonkaenhospital/ihospital-backend:latest
+    expose:
+      - 3000
+    volumes:
+      - ./.envihos:/app/.env
+    networks:
+      - brokernet
 networks:
   brokernet:
     driver: bridge
