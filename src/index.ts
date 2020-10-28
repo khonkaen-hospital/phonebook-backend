@@ -9,31 +9,32 @@ const app = fastify({ logger: true });
 app.register(helmet);
 app.register(cors);
 app.register(require('fastify-rate-limit'), {
-  max: +process.env.MAX_CONNECTION_PER_MINUTE || 1000,
-  timeWindow: '1 minute'
+	max: +process.env.MAX_CONNECTION_PER_MINUTE || 1000,
+	timeWindow: '1 minute'
 });
 app.register(require('./plugins/knex'), {
-  client: 'mysql',
-  connection: {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    port: +process.env.DB_PORT,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-  }
+	client: 'mysql',
+	connection: {
+		host: process.env.DB_HOST,
+		user: process.env.DB_USER,
+		port: +process.env.DB_PORT,
+		password: process.env.DB_PASSWORD,
+		database: process.env.DB_NAME
+	}
 });
 
-app.register(require('./controllers/index'));
+app.register(require('./controllers/default'));
+app.register(require('./controllers/index'), { prefix: '/phone' });
 
 const start = async () => {
-  const port = +process.env.PORT || 3000;
-  try {
-    const address = await app.listen(port);
-    console.log(`Server listening on ${address}`);
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
+	const port = +process.env.PORT || 3000;
+	try {
+		const address = await app.listen(port, '0.0.0.0');
+		console.log(`Server listening on ${address}`);
+	} catch (err) {
+		app.log.error(err);
+		process.exit(1);
+	}
 };
 
 start();
