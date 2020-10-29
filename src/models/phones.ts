@@ -22,7 +22,7 @@ export class PhonesModel {
         let where = `where a.isactive = '1'`;
         let order = `order by no limit ${page}, ${this.perPage}`;
         if (search != '') {
-            where = ` and (a.no like '${search}%' or a.room like '%${search}%' or a.build like '%${search}%' or a.area like '%${search}%')`;
+            where += ` and (a.no like '${search}%' or a.room like '%${search}%' or a.build like '%${search}%' or a.area like '%${search}%')`;
             order = ``;
         }
         let sql = `select * from ${table} left join lib_office b on a.department = b.ref ${where} ${order};`;
