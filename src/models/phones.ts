@@ -1,6 +1,5 @@
 
 import Knex from "knex";
-import { compileFunction } from "vm";
 
 export class PhonesModel {
 
@@ -16,17 +15,17 @@ export class PhonesModel {
     }
 
     async find(db: Knex, data: any) {
-        let table = 'phone_internal';
+        let table = 'phone_internal a';
         let _page = (data.page - 1);
         let page = (data.page == 0) ? (_page * 1) : (_page * this.perPage);
         let search = data.search;
         let where = '';
         let order = `order by no limit ${page}, ${this.perPage}`;
         if (search != '') {
-            where = `where (no like '${search}%' or room like '%${search}%' or build like '%${search}%')`;
+            where = `where (a.no like '${search}%' or a.room like '%${search}%' or a.build like '%${search}%' or a.area like '%${search}%')`;
             order = ``;
         }
-        let sql = `select * from ${table} ${where} ${order};`;
+        let sql = `select * from ${table} left join lib_office b on a.department = b.ref ${where} ${order};`;
         let result = await db.raw(sql);
         let allitems = await this.items(db, where, table);
         let _total = Math.ceil(parseInt(allitems[0][0]['total']) / this.perPage)
@@ -61,12 +60,6 @@ export class PhonesModel {
         return await db.raw(sql);
     }
 
-    async getInfo(db: Knex, code: number) {
-        let sql = `select code, no, id, name, surname from hospdata.employee where code = '${code}';`;
-        return await db.raw(sql);
-
-    }
-
     async getCheckNumber(db: Knex, no: number) {
         let sql = `select no from phone_internal where no = '${no}'`;
         return await db.raw(sql);
@@ -83,18 +76,27 @@ export class PhonesModel {
     }
 
     async updatePhone(db: Knex, data: any) {
+        let sqle = `update employee set 
+            tel_mobile = '${data.mobilephone}',
+            email = '${data.email}' 
+            where code = '${data.uid}' limit 1;`;
+        await await db.raw(sqle);
         let sql = `update phone_internal set 
-        department = '${data.department}', room = '${data.room}',
-        area = '${data.area}', floor = '${data.floor}',
-        build = '${data.build}', phone_type = '${data.phone_type}',
-        softphone = '${data.softphone}', isactive = '${data.isactive}',
-        responder = '${data.responder}'
-        where no = '${data.no}' limit 1`;
+            department = '${data.department}',
+            room = '${data.room}',
+            area = '${data.area}',
+            floor = '${data.floor}',
+            build = '${data.build}',
+            phone_type = '${data.phone_type}',
+            softphone = '${data.softphone}',
+            isactive = '${data.isactive}',
+            responder = '${data.responder}'
+            where uid = '${data.uid}' limit 1`;
         return await db.raw(sql);
     }
 
     async getPhone(db: Knex, code: number) {
-        let sql = `SELECT no, department, area, floor, build, qr_3cx FROM phone_internal where responder = '${code}';`;
+        let sql = `SELECT no, department, area, floor, build, qr_3cx, room, isactive, uid FROM phone_internal where responder = '${code}';`;
         return await db.raw(sql);
     }
 
@@ -105,12 +107,18 @@ export class PhonesModel {
 
     async getSoftphones(db: Knex, data: any) {
         let search = data.search;
+        let uid = data.uid;
         let where = '';
-        if (data != '') {
-            where = `and (no like '%${search}%' or area like '%${search}%' or room like '%${search}%')`;
+        if (data.uid != undefined) {
+            where = `and a.uid = '${uid}'`;
         }
-        let sql = `select no, area, room, responder, softphone, qr_3cx, isactive 
-        from phone_internal where softphone = '1' ${where} order by isactive desc, no asc;`;
+        if (data.search != undefined) {
+            where = `and (a.no like '%${search.trim()}%' or a.area like '%${search.trim()}%' or a.room like '%${search.trim()}%')`;
+        }
+        let sql = `select a.no, a.department, a.area, a.room, a.floor, a.build, a.responder, b.email, b.tel_mobile, a.softphone, a.qr_3cx, a.uid,
+        a.isactive from phone_internal a left join hospdata.employee b on a.uid = b.code
+        where a.softphone = '1' ${where} order by a.isactive desc, a.no asc;`;
+        console.log(sql);
         return await db.raw(sql);
     }
 }
