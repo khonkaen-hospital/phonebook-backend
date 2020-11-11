@@ -59,5 +59,17 @@ async function routes(app: any, opts: any, next: any) {
         let results = await phones.getSoftphones(app.knex, data);
         res.status(200).send({ status: 'ok', result: results[0] });
     })
+
+    app.post('/person', async (req: any, res: any) => {
+        const data = req.body.data;
+        let results = await phones.getPerson(app.knex, data);
+        res.status(200).send({ status: 'ok', result: results[0] });
+    })
+
+    app.post('/add-phone', async (req: any, res: any) => {
+        const data = req.body.data;
+        let results = await phones.addPhone(app.knex, data);
+        res.status(200).send({ status: 'ok', result: results });
+    })
 }
 module.exports = routes;

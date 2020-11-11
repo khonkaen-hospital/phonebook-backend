@@ -117,7 +117,33 @@ export class PhonesModel {
         let sql = `select a.no, a.department, a.area, a.room, a.floor, a.build, a.responder, b.email, b.tel_mobile, a.softphone, a.qr_3cx, a.uid,
         a.isactive from phone_internal a left join hospdata.employee b on a.uid = b.code
         where a.softphone = '1' ${where} order by a.isactive desc, a.no asc;`;
+        return await db.raw(sql);
+    }
+
+    async getPerson(db: Knex, data: any) {
+        let search = data;
+        let word = data.split(' ');
+        let sql = `select code, department, title, name, surname, email, tel from hospdata.employee 
+        where expire = '0000-00-00' and (`;
+        if (word.length == 2) {
+            sql += ` name like '%${word[0].trim()}%' and surname like '%${word[1].trim()}%'`;
+        } else {
+            sql += ` no like '${search.trim()}%' or id like '${search.trim()}%' or name like '%${search.trim()}%' or surname like '%${search.trim()}%'`;
+        }
+        sql += `);`;
         console.log(sql);
         return await db.raw(sql);
+    }
+
+    async addPhone(db: Knex, data: any) {
+        return await db('phone_internal')
+            .insert({
+                no: data.no,
+                department: data.department,
+                area: data.area,
+                responder: data.responder,
+                qr_3cx: data.qr_3cx,
+                uid: data.uid
+            });
     }
 }
