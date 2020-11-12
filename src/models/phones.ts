@@ -136,14 +136,18 @@ export class PhonesModel {
     }
 
     async addPhone(db: Knex, data: any) {
-        return await db('phone_internal')
-            .insert({
-                no: data.no,
-                department: data.department,
-                area: data.area,
-                responder: data.responder,
-                qr_3cx: data.qr_3cx,
-                uid: data.uid
-            });
+        try {
+            return await db('phone_internal')
+                .insert({
+                    no: data.no,
+                    department: data.department,
+                    area: data.area,
+                    responder: data.responder,
+                    qr_3cx: data.qr_3cx,
+                    uid: data.uid
+                });
+        } catch (err) {
+            return err
+        }
     }
 }
