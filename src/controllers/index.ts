@@ -1,7 +1,12 @@
+import httpStatus from 'http-status-codes';
 import { PhonesModel } from '../models/phones';
 const phones = new PhonesModel();
 
 async function routes(app: any, opts: any, next: any) {
+
+    const options = {
+        preHandler: [app.authenticate]
+    }
 
     app.post('/', async (req: any, res: any) => {
         const data = req.body.data;
