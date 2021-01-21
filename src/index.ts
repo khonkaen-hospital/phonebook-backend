@@ -59,8 +59,8 @@ app.register(require('./controllers/metting'), { prefix: '/metting' });
 const start = async () => {
 	const port = +process.env.PORT || 3000;
 	try {
-		// const address = await app.listen(port, '0.0.0.0');
-		const address = await app.listen(port);
+		const address = await app.listen(port, '0.0.0.0');
+		// const address = await app.listen(port);
 		console.log(`Server listening on ${address}`);
 	} catch (err) {
 		app.log.error(err);
